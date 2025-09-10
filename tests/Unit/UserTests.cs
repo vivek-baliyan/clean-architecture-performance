@@ -1,4 +1,4 @@
-using NUnit.Framework;
+using Xunit;
 using CleanArchitecture.Domain.Users;
 using FluentAssertions;
 using System;
@@ -6,7 +6,7 @@ using System;
 namespace Tests.Unit
 {
     /// <summary>
-    /// ✅ GOOD EXAMPLE: True unit tests
+    /// ✅ GOOD EXAMPLE: True unit tests with xUnit
     /// 
     /// These tests demonstrate the fix for Mistake #2: The Testing Trap
     /// 
@@ -17,10 +17,9 @@ namespace Tests.Unit
     /// - Isolated and reliable
     /// - Easy to understand and maintain
     /// </summary>
-    [TestFixture]
     public class UserTests
     {
-        [Test]  
+        [Fact]  
         public void ChangeEmail_ValidEmail_UpdatesEmail()
         {
             // Arrange
@@ -37,7 +36,7 @@ namespace Tests.Unit
             // ✅ Runs in ~2ms, no dependencies, reliable
         }
         
-        [Test]
+        [Fact]
         public void ChangeEmail_InvalidEmail_ThrowsException()
         {
             // Arrange
@@ -47,12 +46,12 @@ namespace Tests.Unit
                 "John Doe");
             
             // Act & Assert
-            Action act = () => user.ChangeEmail(new EmailAddress("invalid"));
+            var act = () => user.ChangeEmail(new EmailAddress("invalid"));
             act.Should().Throw<InvalidEmailException>()
                .WithMessage("Invalid email format");
         }
         
-        [Test]
+        [Fact]
         public void ChangeEmail_ValidEmail_RaisesEmailChangedEvent()
         {
             // Arrange
@@ -75,7 +74,7 @@ namespace Tests.Unit
             emailChangedEvent.NewEmail.Should().Be(newEmail);
         }
         
-        [Test]
+        [Fact]
         public void EmailAddress_ValidFormat_ReturnsTrue()
         {
             // Arrange & Act
@@ -85,7 +84,7 @@ namespace Tests.Unit
             validEmail.IsValid().Should().BeTrue();
         }
         
-        [Test]
+        [Fact]
         public void EmailAddress_InvalidFormat_ReturnsFalse()
         {
             // Arrange & Act
@@ -102,7 +101,7 @@ namespace Tests.Unit
         /// 
         /// Performance improvement: 42,350% faster!
         /// </summary>
-        [Test]
+        [Fact]
         public void UserCreation_AllProperties_SetsCorrectly()
         {
             // Arrange
@@ -126,10 +125,9 @@ namespace Tests.Unit
     /// <summary>
     /// Value object tests - ensuring immutability and equality
     /// </summary>
-    [TestFixture]
     public class ValueObjectTests
     {
-        [Test]
+        [Fact]
         public void UserId_SameValue_AreEqual()
         {
             // Arrange
@@ -141,7 +139,7 @@ namespace Tests.Unit
             userId1.GetHashCode().Should().Be(userId2.GetHashCode());
         }
         
-        [Test]
+        [Fact]
         public void EmailAddress_SameValue_AreEqual()
         {
             // Arrange
@@ -151,6 +149,61 @@ namespace Tests.Unit
             // Act & Assert
             email1.Should().Be(email2);
             email1.GetHashCode().Should().Be(email2.GetHashCode());
+        }
+        
+        [Theory]
+        [InlineData("test@example.com", true)]
+        [InlineData("user@domain.org", true)]
+        [InlineData("invalid", false)]
+        [InlineData("@domain.com", false)]
+        [InlineData("user@", false)]
+        public void EmailAddress_Validation_WorksCorrectly(string email, bool expected)
+        {
+            // Arrange & Act
+            var emailAddress = new EmailAddress(email);
+            
+            // Assert
+            emailAddress.IsValid().Should().Be(expected);
+        }
+    }
+    
+    /// <summary>
+    /// Architecture tests using NetArchTest to validate Clean Architecture rules
+    /// </summary>
+    public class ArchitectureTests
+    {
+        [Fact]
+        public void Domain_Should_Not_Have_Dependencies_On_Infrastructure()
+        {
+            // Arrange
+            var domainAssembly = typeof(User).Assembly;
+            
+            // Act
+            var result = NetArchTest.Rules.Types.InAssembly(domainAssembly)
+                .Should()
+                .NotHaveDependencyOn("Infrastructure")
+                .GetResult();
+            
+            // Assert
+            result.IsSuccessful.Should().BeTrue(
+                "Domain layer should not depend on Infrastructure layer");
+        }
+        
+        [Fact]
+        public void Domain_Should_Not_Have_Dependencies_On_Application()
+        {
+            // Arrange
+            var domainAssembly = typeof(User).Assembly;
+            
+            // Act
+            var result = NetArchTest.Rules.Types.InAssembly(domainAssembly)
+                .Should()
+                .NotHaveDependencyOn("Application")
+                .GetResult();
+            
+            // Assert
+            result.IsSuccessful.Should().BeTrue(
+                "Domain layer should not depend on Application layer");
         }
     }
 }
