@@ -15,4 +15,9 @@
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\src\Mistake3-TooManyLayers\Bad\TooManyLayers.Bad.csproj" />
+    <ProjectReference Include="..\src\Mistake3-TooManyLayers\Good\DirectProjection.Good.csproj" />
+  </ItemGroup>
+
 </Project>
