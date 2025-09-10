@@ -391,4 +391,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Remember**: Clean Architecture isn't about perfect folders—it's about dependencies pointing inward and keeping your domain logic pure, testable, and performant.
 
-**Follow [@vivekbaliyan](https://medium.com/@vivekbaliyan) for more real-world .NET architecture and performance lessons.**
+**Follow [@vivek-baliyan](https://medium.com/@vivek-baliyan) for more real-world .NET architecture and performance lessons.**
