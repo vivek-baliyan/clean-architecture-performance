@@ -317,7 +317,7 @@ public static class EmailServiceRegistration
     public static IServiceCollection AddEnterpriseEmailServices(this IServiceCollection services, IConfiguration configuration)
     {
         // Register 20+ services to send a simple email
-        services.Configure<EmailProviderConfiguration>(configuration.GetSection("Email"));
+        services.Configure<EmailProviderConfiguration>(options => configuration.GetSection("Email").Bind(options));
         
         services.AddScoped<IEmailProviderFactory, EmailProviderFactory>();
         services.AddScoped<IEmailSendingStrategy, SmtpEmailSendingStrategy>();

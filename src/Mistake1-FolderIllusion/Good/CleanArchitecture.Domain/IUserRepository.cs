@@ -1,6 +1,4 @@
-using System.Threading.Tasks;
-
-namespace CleanArchitecture.Domain.Users
+namespace CleanArchitecture.Domain
 {
     /// <summary>
     /// ✅ CORRECT LOCATION: Interface in Domain layer
@@ -12,7 +10,7 @@ namespace CleanArchitecture.Domain.Users
     /// 
     /// This is the Dependency Inversion Principle in action.
     /// </summary>
-    public interface IUserRepository 
+    public interface IUserRepository
     {
         Task<User> GetByIdAsync(UserId id);
         Task SaveAsync(User user);

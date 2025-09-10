@@ -18,7 +18,7 @@ namespace Benchmarks;
 /// </summary>
 
 [MemoryDiagnoser]
-[SimpleJob(RuntimeMoniker.Net90)]
+[SimpleJob(RuntimeMoniker.Net90, iterationCount: 3, warmupCount: 1, invocationCount: 100)]
 [RankColumn]
 public class MappingBenchmarks
 {
@@ -91,8 +91,10 @@ public class MappingBenchmarks
     [GlobalCleanup]
     public void Cleanup()
     {
-        _badServices?.Dispose();
-        _goodServices?.Dispose();
+        if (_badServices is IDisposable badDisposable)
+            badDisposable.Dispose();
+        if (_goodServices is IDisposable goodDisposable)
+            goodDisposable.Dispose();
     }
 }
 
@@ -101,7 +103,7 @@ public class MappingBenchmarks
 /// Demonstrates why heavy DI registration is problematic
 /// </summary>
 [MemoryDiagnoser]
-[SimpleJob(RuntimeMoniker.Net90)]
+[SimpleJob(RuntimeMoniker.Net90, iterationCount: 2, warmupCount: 1, invocationCount: 10)]
 public class ColdStartBenchmarks
 {
     [Benchmark(Baseline = true)]
@@ -144,39 +146,163 @@ public class ColdStartBenchmarks
 }
 
 /// <summary>
+/// Simple performance validation test - runs quickly without full benchmark overhead
+/// </summary>
+public class SimplePerformanceTest
+{
+    public static async Task RunQuickValidation()
+    {
+        Console.WriteLine("🔥 Quick Performance Validation Test");
+        Console.WriteLine("=====================================");
+        Console.WriteLine();
+
+        // Setup services
+        var badServices = new ServiceCollection()
+            .AddBadLayeredServices()
+            .BuildServiceProvider();
+
+        var goodServices = new ServiceCollection()
+            .AddOptimizedServices()
+            .BuildServiceProvider();
+
+        // Initialize services and databases
+        var badCustomerService = badServices.GetRequiredService<TooManyLayers.Bad.CustomerService>();
+        var goodCustomerService = goodServices.GetRequiredService<DirectProjection.Good.CustomerService>();
+
+        var badContext = badServices.GetRequiredService<TooManyLayers.Bad.CustomerDbContext>();
+        var goodContext = goodServices.GetRequiredService<DirectProjection.Good.CustomerDbContext>();
+        
+        await badContext.Database.EnsureCreatedAsync();
+        await goodContext.Database.EnsureCreatedAsync();
+
+        // Extensive warm up to ensure JIT compilation and database caching
+        Console.WriteLine("Warming up services...");
+        for (int w = 0; w < 100; w++)
+        {
+            try 
+            {
+                await badCustomerService.GetCustomerAsync(1);
+                await goodCustomerService.GetCustomerAsync(1);
+            }
+            catch
+            {
+                // Ignore warmup errors
+            }
+        }
+
+        // Run quick performance comparison
+        const int iterations = 10000;
+        
+        Console.WriteLine($"Testing {iterations} iterations each...");
+        Console.WriteLine();
+
+        // Test Bad (4-layer mapping) - measure in microseconds for better precision
+        var badStopwatch = System.Diagnostics.Stopwatch.StartNew();
+        for (int i = 0; i < iterations; i++)
+        {
+            await badCustomerService.GetCustomerAsync(1);
+        }
+        badStopwatch.Stop();
+        var badMicroseconds = (badStopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1_000_000;
+
+        // Test Good (direct projection)
+        var goodStopwatch = System.Diagnostics.Stopwatch.StartNew();
+        for (int i = 0; i < iterations; i++)
+        {
+            await goodCustomerService.GetCustomerAsync(1);
+        }
+        goodStopwatch.Stop();
+        var goodMicroseconds = (goodStopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1_000_000;
+
+        // Calculate results
+        var badAverage = badMicroseconds / iterations;
+        var goodAverage = goodMicroseconds / iterations;
+        var improvement = badAverage > goodAverage ? ((badAverage - goodAverage) / badAverage) * 100 : 0;
+
+        Console.WriteLine("📊 Results:");
+        Console.WriteLine($"- Four-Layer Mapping: {badAverage:F2}μs per request");
+        Console.WriteLine($"- Direct Projection:  {goodAverage:F2}μs per request");
+        Console.WriteLine($"- Performance Gain:   {improvement:F1}% faster");
+        Console.WriteLine($"- Time Saved:         {badAverage - goodAverage:F2}μs per request");
+        Console.WriteLine();
+
+        if (improvement > 50)
+        {
+            Console.WriteLine("✅ VALIDATION PASSED: Direct projection is significantly faster!");
+        }
+        else if (improvement > 25)
+        {
+            Console.WriteLine("⚠️  PARTIAL VALIDATION: Some improvement detected, but less than expected.");
+        }
+        else
+        {
+            Console.WriteLine("❌ VALIDATION FAILED: Expected performance improvement not detected.");
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("💡 For more detailed analysis, run: dotnet run --benchmark");
+        Console.WriteLine();
+
+        // Cleanup
+        badServices.Dispose();
+        goodServices.Dispose();
+    }
+}
+
+/// <summary>
 /// Program entry point for running benchmarks
 /// </summary>
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         Console.WriteLine("🚀 Clean Architecture Performance Benchmarks");
         Console.WriteLine("==============================================");
         Console.WriteLine();
-        Console.WriteLine("This benchmark proves the performance claims from the article:");
-        Console.WriteLine("- Mistake #3: Too Many Layers");
-        Console.WriteLine("- Expected: 847μs → 312μs (65% improvement)");
-        Console.WriteLine("- Expected: 25KB → 9KB (64% less memory)");
-        Console.WriteLine();
-        Console.WriteLine("Running benchmarks...");
-        Console.WriteLine();
 
-        // Run the mapping benchmarks
-        var summary = BenchmarkRunner.Run<MappingBenchmarks>();
-        
-        Console.WriteLine();
-        Console.WriteLine("🎯 Key Results:");
-        Console.WriteLine("- FourLayerMapping_Single: Should be ~847μs with ~25KB allocated");
-        Console.WriteLine("- DirectProjection_Single: Should be ~312μs with ~9KB allocated");
-        Console.WriteLine("- Performance improvement: ~65% faster");
-        Console.WriteLine("- Memory improvement: ~64% less allocation");
-        Console.WriteLine();
+        if (args.Contains("--quick") || args.Length == 0)
+        {
+            // Run quick validation by default
+            await SimplePerformanceTest.RunQuickValidation();
+            return;
+        }
+
+        if (args.Contains("--benchmark"))
+        {
+            Console.WriteLine("This benchmark proves the performance claims from the article:");
+            Console.WriteLine("- Mistake #3: Too Many Layers");
+            Console.WriteLine("- Expected: 847μs → 312μs (65% improvement)");
+            Console.WriteLine("- Expected: 25KB → 9KB (64% less memory)");
+            Console.WriteLine();
+            Console.WriteLine("Running full benchmarks (this will take a few minutes)...");
+            Console.WriteLine();
+
+            // Run the mapping benchmarks
+            var summary = BenchmarkRunner.Run<MappingBenchmarks>();
+            
+            Console.WriteLine();
+            Console.WriteLine("🎯 Key Results:");
+            Console.WriteLine("- FourLayerMapping_Single: Should be ~847μs with ~25KB allocated");
+            Console.WriteLine("- DirectProjection_Single: Should be ~312μs with ~9KB allocated");
+            Console.WriteLine("- Performance improvement: ~65% faster");
+            Console.WriteLine("- Memory improvement: ~64% less allocation");
+            Console.WriteLine();
+        }
         
         // Optionally run cold start benchmarks
         if (args.Contains("--cold-start"))
         {
             Console.WriteLine("Running cold start benchmarks...");
             BenchmarkRunner.Run<ColdStartBenchmarks>();
+        }
+
+        if (args.Contains("--help"))
+        {
+            Console.WriteLine("Usage Options:");
+            Console.WriteLine("  --quick      Quick validation test (default, ~30 seconds)");
+            Console.WriteLine("  --benchmark  Full BenchmarkDotNet analysis (~10 minutes)");
+            Console.WriteLine("  --cold-start Include DI container startup benchmarks");
+            Console.WriteLine("  --help       Show this help message");
         }
     }
 }

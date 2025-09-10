@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace Tests.BadExamples
+namespace Tests.BadExamples.XUnitExample
 {
     /// <summary>
     /// ❌ BAD EXAMPLE: Slow "unit" tests that are actually integration tests
@@ -30,7 +30,7 @@ namespace Tests.BadExamples
         {
             // ❌ BAD: Setting up database for "unit" tests
             var options = new DbContextOptionsBuilder<TestDbContext>()
-                .UseInMemory(Guid.NewGuid().ToString()) // Even in-memory is slow
+                .UseInMemoryDatabase(Guid.NewGuid().ToString()) // Even in-memory is slow
                 .Options;
             
             _dbContext = new TestDbContext(options);

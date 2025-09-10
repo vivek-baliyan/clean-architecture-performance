@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
-namespace Tests.BadExamples
+namespace Tests.BadExamples.NUnitExample
 {
     /// <summary>
     /// ❌ BAD EXAMPLE: Integration tests disguised as unit tests
@@ -19,9 +19,9 @@ namespace Tests.BadExamples
     [TestFixture]
     public class BadUserServiceTests
     {
-        private TestDbContext _dbContext;
-        private SqlUserRepository _repo;
-        private UserService _service;
+        private TestDbContext _dbContext = null!;
+        private SqlUserRepository _repo = null!;
+        private UserService _service = null!;
         
         [SetUp]
         public void Setup()
@@ -60,7 +60,7 @@ namespace Tests.BadExamples
             
             // Assert - More database I/O
             var updatedUser = await _repo.GetByIdAsync(1); // Another database hit
-            Assert.AreEqual("new@email.com", updatedUser.Email);
+            Assert.That(updatedUser.Email, Is.EqualTo("new@email.com"));
             
             // Problems with this test:
             // 1. Takes 847ms (vs 2ms for true unit test)
@@ -108,7 +108,7 @@ namespace Tests.BadExamples
         
         public async Task<User> GetByIdAsync(int id)
         {
-            return await _context.Users.FindAsync(id);
+            return await _context.Users.FindAsync(id) ?? throw new InvalidOperationException($"User with id {id} not found");
         }
         
         public async Task SaveAsync(User user)
@@ -139,8 +139,8 @@ namespace Tests.BadExamples
     public class User
     {
         public int Id { get; set; }
-        public string Email { get; set; } // No behavior, no validation
-        public string Name { get; set; }
+        public string Email { get; set; } = string.Empty; // No behavior, no validation
+        public string Name { get; set; } = string.Empty;
     }
 }
 

@@ -21,8 +21,10 @@ This repository demonstrates common Clean Architecture implementation mistakes t
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **.NET 9.0 SDK** (latest LTS)
+- **.NET 9.0 SDK** (current version)
 - Visual Studio 2022 17.8+ / VS Code / JetBrains Rider 2024.3+
+
+**Note**: .NET 9 is a Short Term Support (STS) release. For production applications, consider using .NET 8 (LTS) which is supported until November 2026.
 
 ### Clone and Run
 
@@ -215,14 +217,14 @@ This repository uses the latest .NET ecosystem:
 - **ImplicitUsings** for cleaner code
 
 **Testing Stack**:
-- **xUnit 2.9.2** (industry standard)
-- **FluentAssertions 7.0** (readable assertions)
-- **NetArchTest.Rules** (architecture validation)
-- **Moq 4.20** + **AutoFixture 5.0** (test doubles)
+- **xUnit 2.9.3** (industry standard)
+- **FluentAssertions 8.6.0** (readable assertions)
+- **NetArchTest.Rules 1.3.2** (architecture validation)
+- **Moq 4.20.72** + **AutoFixture 4.18.1** (test doubles)
 
 **Performance**:
-- **BenchmarkDotNet 0.14.0** (micro-benchmarks)
-- **System.Text.Json 9.0** (high-performance JSON)
+- **BenchmarkDotNet 0.15.2** (micro-benchmarks)
+- **System.Text.Json 9.0.8** (high-performance JSON)
 
 **Quality Assurance**:
 - **TreatWarningsAsErrors** enabled
@@ -364,9 +366,9 @@ If you're upgrading from .NET 8:
 <LangVersion>13</LangVersion>
 
 <!-- Update packages -->
-<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
-<PackageReference Include="xunit" Version="2.9.2" />
-<PackageReference Include="FluentAssertions" Version="7.0.0" />
+<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
+<PackageReference Include="xunit" Version="2.9.3" />
+<PackageReference Include="FluentAssertions" Version="8.6.0" />
 ```
 
 ## ⭐ Star History

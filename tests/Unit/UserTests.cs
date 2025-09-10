@@ -1,7 +1,7 @@
 using Xunit;
-using CleanArchitecture.Domain.Users;
 using FluentAssertions;
 using System;
+using CleanArchitecture.Domain;
 
 namespace Tests.Unit
 {
