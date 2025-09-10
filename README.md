@@ -71,9 +71,6 @@ clean-architecture-performance/
 │   ├── ✅ Mistake1-FolderIllusion/
 │   │   ├── ❌ Bad/             # Interface in wrong location
 │   │   └── ✅ Good/            # Interface in Domain layer
-│   ├── ✅ Mistake2-TestingTrap/ (Implemented in tests/)
-│   │   ├── ❌ BadExamples/     # 847ms tests with database
-│   │   └── ✅ Unit/            # 2ms tests without database
 │   ├── ✅ Mistake3-TooManyLayers/
 │   │   ├── ❌ Bad/             # 4-layer mapping (847μs)
 │   │   └── ✅ Good/            # Direct projection (312μs)
@@ -85,7 +82,7 @@ clean-architecture-performance/
 │       └── ✅ Good/            # Right-sized abstractions
 ├── ⚡ benchmarks/
 │   └── MappingBenchmarks.cs   # Proves 847μs → 312μs improvement
-├── 🧪 tests/
+├── 🧪 tests/ (✅ Mistake2-TestingTrap implemented here)
 │   ├── Unit/                  # ✅ Fast tests (2ms) with xUnit + FluentAssertions
 │   └── BadExamples/           # ❌ Slow tests (847ms) for comparison
 └── 🔧 tools/

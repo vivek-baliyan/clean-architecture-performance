@@ -1,10 +1,9 @@
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Jobs;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
-using TooManyLayers.Bad;
+using BenchmarkDotNet.Running;
 using DirectProjection.Good;
+using Microsoft.Extensions.DependencyInjection;
+using TooManyLayers.Bad;
 
 namespace Benchmarks;
 
@@ -37,7 +36,8 @@ public class MappingBenchmarks
 
         // Setup Good Example (direct projection)  
         _goodServices = new ServiceCollection()
-            .AddOptimizedServices()
+            .AddOptimizedServices
+            ()
             .BuildServiceProvider();
 
         // Initialize services
@@ -47,7 +47,7 @@ public class MappingBenchmarks
         // Ensure databases are created and seeded
         var badContext = _badServices.GetRequiredService<TooManyLayers.Bad.CustomerDbContext>();
         var goodContext = _goodServices.GetRequiredService<DirectProjection.Good.CustomerDbContext>();
-        
+
         await badContext.Database.EnsureCreatedAsync();
         await goodContext.Database.EnsureCreatedAsync();
 
@@ -120,7 +120,7 @@ public class ColdStartBenchmarks
 
         var customerService = services.GetRequiredService<TooManyLayers.Bad.CustomerService>();
         var result = await customerService.GetCustomerAsync(1);
-        
+
         services.Dispose();
         return result;
     }
@@ -139,7 +139,7 @@ public class ColdStartBenchmarks
 
         var customerService = services.GetRequiredService<DirectProjection.Good.CustomerService>();
         var result = await customerService.GetCustomerAsync(1);
-        
+
         services.Dispose();
         return result;
     }
@@ -171,7 +171,7 @@ public class SimplePerformanceTest
 
         var badContext = badServices.GetRequiredService<TooManyLayers.Bad.CustomerDbContext>();
         var goodContext = goodServices.GetRequiredService<DirectProjection.Good.CustomerDbContext>();
-        
+
         await badContext.Database.EnsureCreatedAsync();
         await goodContext.Database.EnsureCreatedAsync();
 
@@ -179,7 +179,7 @@ public class SimplePerformanceTest
         Console.WriteLine("Warming up services...");
         for (int w = 0; w < 100; w++)
         {
-            try 
+            try
             {
                 await badCustomerService.GetCustomerAsync(1);
                 await goodCustomerService.GetCustomerAsync(1);
@@ -192,7 +192,7 @@ public class SimplePerformanceTest
 
         // Run quick performance comparison
         const int iterations = 10000;
-        
+
         Console.WriteLine($"Testing {iterations} iterations each...");
         Console.WriteLine();
 
@@ -279,7 +279,7 @@ public class Program
 
             // Run the mapping benchmarks
             var summary = BenchmarkRunner.Run<MappingBenchmarks>();
-            
+
             Console.WriteLine();
             Console.WriteLine("🎯 Key Results:");
             Console.WriteLine("- FourLayerMapping_Single: Should be ~847μs with ~25KB allocated");
@@ -288,7 +288,7 @@ public class Program
             Console.WriteLine("- Memory improvement: ~64% less allocation");
             Console.WriteLine();
         }
-        
+
         // Optionally run cold start benchmarks
         if (args.Contains("--cold-start"))
         {
