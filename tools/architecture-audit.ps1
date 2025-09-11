@@ -156,7 +156,7 @@ Write-Host "=================" -ForegroundColor Cyan
 $percentage = [math]::Round(($results.Score / $results.MaxScore) * 100, 1)
 $color = if ($percentage -ge 80) { "Green" } elseif ($percentage -ge 60) { "Yellow" } else { "Red" }
 
-Write-Host "Overall Score: $($results.Score)/$($results.MaxScore) ($percentage`%)" -ForegroundColor $color
+Write-Host "Overall Score: $($results.Score)/$($results.MaxScore) ($percentage%)" -ForegroundColor $color
 
 Write-Host "`n✅ SUCCESSES ($($results.Successes.Count)):" -ForegroundColor Green
 $results.Successes | ForEach-Object { Write-Host "  $_" -ForegroundColor Green }

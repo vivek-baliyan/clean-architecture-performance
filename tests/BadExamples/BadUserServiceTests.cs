@@ -28,10 +28,10 @@ namespace Tests.BadExamples.NUnitExample
         {
             // ❌ BAD: Setting up database in unit test
             var options = new DbContextOptionsBuilder<TestDbContext>()
-                .UseSqlServer("Server=localhost;Database=TestDb;Integrated Security=true;")
+                .UseInMemoryDatabase(Guid.NewGuid().ToString()) // Still slow for "unit" tests
                 .Options;
                 
-            _dbContext = new TestDbContext(options); // Needs SQL Server running!
+            _dbContext = new TestDbContext(options); // Even in-memory is slow for unit tests
             _dbContext.Database.EnsureCreated(); // Slow database operations
             
             _repo = new SqlUserRepository(_dbContext);

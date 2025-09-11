@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Mistake1-FolderIllusion\Good\CleanArchitecture.Domain\CleanArchitecture.Domain.csproj" />
+    <ProjectReference Include="..\..\src\CleanArchitecture.Examples\CleanArchitecture.Examples.csproj" />
   </ItemGroup>
 
 </Project>

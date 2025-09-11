@@ -1,7 +1,7 @@
 using Xunit;
 using FluentAssertions;
 using System;
-using CleanArchitecture.Domain;
+using Mistake1.FolderIllusion.Good;
 
 namespace Tests.Unit
 {
