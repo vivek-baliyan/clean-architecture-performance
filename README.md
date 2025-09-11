@@ -12,7 +12,7 @@ This repository demonstrates **5 critical Clean Architecture implementation mist
 
 | Mistake | Before → After | Key Fix | Evidence |
 |---------|----------------|---------|-----------|
-| Folder Illusion | Architecture violations | Interface placement | [Architecture Tests](tests/Unit/ArchitectureTests.cs) |
+| Folder Illusion | Architecture violations | Interface placement | [Architecture Tests](tests/Unit/UserTests.cs#L173-L208) |
 | Testing Trap | 847ms → 2ms (42,350% faster) | True unit tests | [Fast](tests/Unit/) vs [Slow](tests/BadExamples/) Tests |
 | Too Many Layers | 847μs → 312μs (65% faster) | Direct projection | [Benchmarks](benchmarks/MappingBenchmarks.cs) |
 | Cargo Cult | 3.5hr → 5min delivery | Pragmatic design | [Bad](src/Mistake4-CargoCult/Bad/) vs [Good](src/Mistake4-CargoCult/Good/) |
@@ -64,7 +64,7 @@ tools/           # Architecture validation
 ### 1. Folder Illusion
 **Problem**: Interfaces in wrong layer  
 **Fix**: Put interfaces where consumed, not implemented  
-**Evidence**: [Architecture Tests](tests/Unit/ArchitectureTests.cs)
+**Evidence**: [Architecture Tests](tests/Unit/UserTests.cs#L173-L208)
 
 ### 2. Testing Trap  
 **Problem**: Unit tests with database dependencies  
@@ -91,7 +91,7 @@ tools/           # Architecture validation
 ```bash
 # Architecture validation
 dotnet test tests/Unit --filter "ArchitectureTests"
-powershell -ExecutionPolicy Bypass -File tools/architecture-audit.ps1
+# Note: PowerShell audit script needs syntax fixes (see issues)
 
 # Performance benchmarks  
 dotnet run --project benchmarks --configuration Release

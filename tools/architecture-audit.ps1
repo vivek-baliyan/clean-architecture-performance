@@ -156,7 +156,7 @@ Write-Host "=================" -ForegroundColor Cyan
 $percentage = [math]::Round(($results.Score / $results.MaxScore) * 100, 1)
 $color = if ($percentage -ge 80) { "Green" } elseif ($percentage -ge 60) { "Yellow" } else { "Red" }
 
-Write-Host "Overall Score: $($results.Score)/$($results.MaxScore) ($percentage%)" -ForegroundColor $color
+Write-Host "Overall Score: $($results.Score)/$($results.MaxScore) ($percentage`%)" -ForegroundColor $color
 
 Write-Host "`n✅ SUCCESSES ($($results.Successes.Count)):" -ForegroundColor Green
 $results.Successes | ForEach-Object { Write-Host "  $_" -ForegroundColor Green }
@@ -195,10 +195,10 @@ $(($results.Issues | ForEach-Object { "- $_" }) -join "`n")
 
 ## Action Items
 $(if ($percentage -lt 80) {
-"- [ ] Move repository interfaces from Infrastructure to Domain
-- [ ] Remove database dependencies from unit tests  
-- [ ] Use direct projections instead of multiple mappings
-- [ ] Consolidate unnecessary interfaces"
+"* [ ] Move repository interfaces from Infrastructure to Domain
+* [ ] Remove database dependencies from unit tests  
+* [ ] Use direct projections instead of multiple mappings
+* [ ] Consolidate unnecessary interfaces"
 } else {
 "🎉 Architecture is in good shape! Keep up the good work."
 })
@@ -206,24 +206,24 @@ $(if ($percentage -lt 80) {
 ## Audit Criteria
 
 ### Domain Dependencies (20 points)
-- Domain layer should have NO external references
-- All dependencies should point inward
+* Domain layer should have NO external references
+* All dependencies should point inward
 
 ### Interface Location (15 points)  
-- Interfaces should be in the layer that CONSUMES them
-- Repository interfaces belong in Domain, not Infrastructure
+* Interfaces should be in the layer that CONSUMES them
+* Repository interfaces belong in Domain, not Infrastructure
 
 ### Test Performance (10 points)
-- Unit tests should run in milliseconds
-- No database or external dependencies in unit tests
+* Unit tests should run in milliseconds
+* No database or external dependencies in unit tests
 
 ### Layer Complexity (15 points)
-- Avoid excessive mapping between layers
-- Use direct projections where appropriate
+* Avoid excessive mapping between layers
+* Use direct projections where appropriate
 
 ### Interface Design (10 points)
-- Don't create interfaces "just in case"
-- Each interface should have a clear purpose
+* Don't create interfaces 'just in case'
+* Each interface should have a clear purpose
 
 ## Next Steps
 
