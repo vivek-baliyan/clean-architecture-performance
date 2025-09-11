@@ -36,8 +36,7 @@ public class MappingBenchmarks
 
         // Setup Good Example (direct projection)  
         _goodServices = new ServiceCollection()
-            .AddOptimizedServices
-            ()
+            .AddOptimizedServices()
             .BuildServiceProvider();
 
         // Initialize services
