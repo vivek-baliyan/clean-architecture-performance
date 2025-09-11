@@ -1,7 +1,7 @@
-using System.Net.Mail;
 using System.Net;
+using System.Net.Mail;
 
-namespace Mistake4.CargoCult.Good;
+namespace CleanArchitecture.Examples.Mistake4_CargoCult.Good;
 
 /// <summary>
 /// ✅ GOOD EXAMPLE: Pragmatic Design - Ships in 5 minutes

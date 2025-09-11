@@ -1,7 +1,7 @@
-using NUnit.Framework;
 using NSubstitute;
+using NUnit.Framework;
 
-namespace Mistake2.TestingTrap.Good;
+namespace CleanArchitecture.Examples.Mistake2_TestingTrap.Good;
 
 /// <summary>
 /// ✅ GOOD EXAMPLE: True Unit Tests with Rich Domain Models
@@ -38,7 +38,7 @@ public class FastUserService
 
         // Business logic in domain model where it belongs
         user.ChangeEmail(newEmail);
-        
+
         await _userRepository.SaveAsync(user);
         return true;
     }
@@ -82,7 +82,7 @@ public class User
         var oldEmail = Email;
         Email = newEmail;
         UpdatedAt = DateTime.UtcNow;
-        
+
         AddDomainEvent(new EmailChangedEvent(Id, oldEmail, newEmail));
     }
 
@@ -100,12 +100,12 @@ public class User
 /// </summary>
 public record EmailAddress(string Value)
 {
-    public bool IsValid() => 
+    public bool IsValid() =>
         !string.IsNullOrWhiteSpace(Value) &&
-        Value.Contains("@") && 
-        Value.Length > 5 && 
-        !Value.StartsWith("@") && 
-        !Value.EndsWith("@") && 
+        Value.Contains("@") &&
+        Value.Length > 5 &&
+        !Value.StartsWith("@") &&
+        !Value.EndsWith("@") &&
         Value.Count(c => c == '@') == 1;
 }
 
@@ -137,8 +137,8 @@ public class FastUserTests
     {
         // Arrange
         var user = new User(
-            new UserId(1), 
-            new EmailAddress("old@email.com"), 
+            new UserId(1),
+            new EmailAddress("old@email.com"),
             "John Doe");
         var newEmail = new EmailAddress("new@email.com");
 
@@ -155,12 +155,12 @@ public class FastUserTests
     {
         // Arrange
         var user = new User(
-            new UserId(1), 
-            new EmailAddress("old@email.com"), 
+            new UserId(1),
+            new EmailAddress("old@email.com"),
             "John Doe");
 
         // Act & Assert
-        Assert.Throws<InvalidEmailException>(() => 
+        Assert.Throws<InvalidEmailException>(() =>
             user.ChangeEmail(new EmailAddress("invalid")));
     }
 
@@ -183,8 +183,8 @@ public class FastUserTests
     {
         // Arrange
         var user = new User(
-            new UserId(1), 
-            new EmailAddress("old@email.com"), 
+            new UserId(1),
+            new EmailAddress("old@email.com"),
             "John Doe");
         var newEmail = new EmailAddress("new@email.com");
 
@@ -195,7 +195,7 @@ public class FastUserTests
         var events = user.GetDomainEvents();
         Assert.That(events, Has.Count.EqualTo(1));
         Assert.That(events[0], Is.TypeOf<EmailChangedEvent>());
-        
+
         var emailChangedEvent = (EmailChangedEvent)events[0];
         Assert.That(emailChangedEvent.UserId, Is.EqualTo(new UserId(1)));
         Assert.That(emailChangedEvent.NewEmail, Is.EqualTo(newEmail));
@@ -244,7 +244,7 @@ public class FastUserTests
         Assert.That(user.Email, Is.EqualTo(email));
         Assert.That(user.Name, Is.EqualTo(name));
         Assert.That(user.GetDomainEvents(), Is.Empty);
-        
+
         // This test completes in microseconds, not milliseconds!
     }
 }
@@ -282,7 +282,7 @@ public class FastUserServiceTests
         Assert.That(result, Is.True);
         Assert.That(user.Email, Is.EqualTo(newEmail));
         await _mockRepository.Received(1).SaveAsync(user);
-        
+
         // Still runs in ~2ms because no real I/O
     }
 

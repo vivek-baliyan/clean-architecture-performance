@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Mistake5.InterfaceOverload.Bad;
+namespace CleanArchitecture.Examples.Mistake5_InterfaceOverload.Bad;
 
 /// <summary>
 /// ❌ BAD EXAMPLE: 47 Interfaces, 47 Single Implementations
@@ -340,7 +340,7 @@ public class UserOrderService
         IPaymentProcessor paymentProcessor,
         IPaymentValidator paymentValidator,
         IPaymentNotifier paymentNotifier
-        // ... 30 more parameters
+    // ... 30 more parameters
     )
     {
         _userCreator = userCreator;
@@ -372,14 +372,14 @@ public class UserOrderService
         var userId = await _userCreator.CreateUserAsync(userName, email);
         await _userNotifier.NotifyUserCreatedAsync(userId);
         await _userAuditor.LogUserActionAsync(userId, "Created");
-        
+
         var orderId = await _orderCreator.CreateOrderAsync(userId, amount);
         await _orderNotifier.NotifyOrderCreatedAsync(orderId);
         await _orderAuditor.LogOrderActionAsync(orderId, "Created");
-        
+
         await _paymentProcessor.ProcessPaymentAsync(orderId, amount);
         await _paymentNotifier.NotifyPaymentProcessedAsync(orderId);
-        
+
         // 8 virtual method calls for a simple operation
         // Each call has runtime overhead
         // No actual flexibility - all implementations are fixed

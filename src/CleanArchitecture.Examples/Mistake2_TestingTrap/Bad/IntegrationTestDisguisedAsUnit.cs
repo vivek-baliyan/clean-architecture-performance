@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
-namespace Mistake2.TestingTrap.Bad;
+namespace CleanArchitecture.Examples.Mistake2_TestingTrap.Bad;
 
 /// <summary>
 /// ❌ BAD EXAMPLE: Integration Test Disguised as Unit Test
@@ -18,14 +18,9 @@ namespace Mistake2.TestingTrap.Bad;
 /// 
 /// Result: Slow, brittle test suite that doesn't catch business logic bugs
 /// </summary>
-public class SlowUserService
+public class SlowUserService(DbContext dbContext)
 {
-    private readonly DbContext _dbContext;
-
-    public SlowUserService(DbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    private readonly DbContext _dbContext = dbContext;
 
     /// <summary>
     /// ❌ BAD: Business logic mixed with infrastructure concerns
@@ -36,13 +31,13 @@ public class SlowUserService
         // Database I/O in business logic layer
         var user = await _dbContext.Set<UserEntity>()
             .FirstOrDefaultAsync(u => u.Id == userId);
-            
+
         if (user == null) return false;
-        
+
         // Anemic domain model - no validation in entity
         user.Email = newEmail;
         user.UpdatedAt = DateTime.UtcNow;
-        
+
         await _dbContext.SaveChangesAsync();
         return true;
     }
@@ -101,7 +96,7 @@ public class SlowUserTests
 
         // Assert - Requires database query
         Assert.That(result, Is.True);
-        
+
         var updatedUser = await _dbContext.Set<UserEntity>()
             .FirstAsync(u => u.Id == userId);
         Assert.That(updatedUser.Email, Is.EqualTo(newEmail));
@@ -116,10 +111,10 @@ public class SlowUserTests
         // ❌ BAD: Database seeding makes tests dependent on setup
         _dbContext.Set<UserEntity>().AddRange(new[]
         {
-            new UserEntity 
-            { 
-                Id = 1, 
-                Name = "John Doe", 
+            new UserEntity
+            {
+                Id = 1,
+                Name = "John Doe",
                 Email = "john@example.com",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow

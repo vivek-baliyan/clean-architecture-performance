@@ -1,8 +1,8 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Mistake4.CargoCult.Bad;
+namespace CleanArchitecture.Examples.Mistake4_CargoCult.Bad;
 
 /// <summary>
 /// ❌ BAD EXAMPLE: Cargo Cult Culture - Architecture Theatre
@@ -282,16 +282,16 @@ public class EmailCircuitBreakerOptions { }
 public class EmailBulkSendingOptions { }
 
 public interface IEmailEvent { }
-public class EmailSentEvent : IEmailEvent 
-{ 
+public class EmailSentEvent : IEmailEvent
+{
     public string MessageId { get; set; } = "";
     public string Recipient { get; set; } = "";
     public string Subject { get; set; } = "";
     public DateTime SentAt { get; set; }
 }
 
-public class EmailFailedEvent : IEmailEvent 
-{ 
+public class EmailFailedEvent : IEmailEvent
+{
     public string Recipient { get; set; } = "";
     public string Subject { get; set; } = "";
     public string Error { get; set; } = "";
@@ -300,7 +300,7 @@ public class EmailFailedEvent : IEmailEvent
 
 public interface IEmailEventHandler<T> where T : IEmailEvent { }
 public interface IEmailValidator { }
-public class EmailValidationException : Exception 
+public class EmailValidationException : Exception
 {
     public EmailValidationException(List<string> errors) : base(string.Join(", ", errors)) { }
 }
@@ -318,7 +318,7 @@ public static class EmailServiceRegistration
     {
         // Register 20+ services to send a simple email
         services.Configure<EmailProviderConfiguration>(options => configuration.GetSection("Email").Bind(options));
-        
+
         services.AddScoped<IEmailProviderFactory, EmailProviderFactory>();
         services.AddScoped<IEmailSendingStrategy, SmtpEmailSendingStrategy>();
         services.AddScoped<IEmailTemplateRepository, InMemoryEmailTemplateRepository>();
@@ -326,14 +326,14 @@ public static class EmailServiceRegistration
         services.AddScoped<IEmailValidationChain, EmailValidationChain>();
         services.AddScoped<IEmailMetricsDecorator, EmailMetricsDecorator>();
         services.AddScoped<IEmailService, EnterpriseEmailService>();
-        
+
         // Register validators (only one actually exists)
         services.AddScoped<IEmailValidator, EmailAddressValidator>();
-        
+
         // Register event handlers (none actually exist)
         services.AddScoped<IEmailEventHandler<EmailSentEvent>, EmailSentEventHandler>();
         services.AddScoped<IEmailEventHandler<EmailFailedEvent>, EmailFailedEventHandler>();
-        
+
         return services;
     }
 }

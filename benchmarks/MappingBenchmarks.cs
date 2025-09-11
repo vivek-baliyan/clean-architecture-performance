@@ -1,9 +1,9 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
-using Mistake3.TooManyLayers.Good;
 using Microsoft.Extensions.DependencyInjection;
-using Mistake3.TooManyLayers.Bad;
+using CleanArchitecture.Examples.Mistake3_TooManyLayers.Bad;
+using CleanArchitecture.Examples.Mistake3_TooManyLayers.Good;
 
 namespace Benchmarks;
 
@@ -23,8 +23,8 @@ public class MappingBenchmarks
 {
     private IServiceProvider _badServices = null!;
     private IServiceProvider _goodServices = null!;
-    private Mistake3.TooManyLayers.Bad.CustomerService _badCustomerService = null!;
-    private Mistake3.TooManyLayers.Good.CustomerService _goodCustomerService = null!;
+    private CleanArchitecture.Examples.Mistake3_TooManyLayers.Bad.CustomerService _badCustomerService = null!;
+    private CleanArchitecture.Examples.Mistake3_TooManyLayers.Good.CustomerService _goodCustomerService = null!;
 
     [GlobalSetup]
     public async Task Setup()
@@ -40,12 +40,12 @@ public class MappingBenchmarks
             .BuildServiceProvider();
 
         // Initialize services
-        _badCustomerService = _badServices.GetRequiredService<Mistake3.TooManyLayers.Bad.CustomerService>();
-        _goodCustomerService = _goodServices.GetRequiredService<Mistake3.TooManyLayers.Good.CustomerService>();
+        _badCustomerService = _badServices.GetRequiredService<CleanArchitecture.Examples.Mistake3_TooManyLayers.Bad.CustomerService>();
+        _goodCustomerService = _goodServices.GetRequiredService<CleanArchitecture.Examples.Mistake3_TooManyLayers.Good.CustomerService>();
 
         // Ensure databases are created and seeded
-        var badContext = _badServices.GetRequiredService<Mistake3.TooManyLayers.Bad.CustomerDbContext>();
-        var goodContext = _goodServices.GetRequiredService<Mistake3.TooManyLayers.Good.CustomerDbContext>();
+        var badContext = _badServices.GetRequiredService<CleanArchitecture.Examples.Mistake3_TooManyLayers.Bad.CustomerDbContext>();
+        var goodContext = _goodServices.GetRequiredService<CleanArchitecture.Examples.Mistake3_TooManyLayers.Good.CustomerDbContext>();
 
         await badContext.Database.EnsureCreatedAsync();
         await goodContext.Database.EnsureCreatedAsync();
@@ -114,10 +114,10 @@ public class ColdStartBenchmarks
             .AddBadLayeredServices()
             .BuildServiceProvider();
 
-        var context = services.GetRequiredService<Mistake3.TooManyLayers.Bad.CustomerDbContext>();
+        var context = services.GetRequiredService<CleanArchitecture.Examples.Mistake3_TooManyLayers.Bad.CustomerDbContext>();
         await context.Database.EnsureCreatedAsync();
 
-        var customerService = services.GetRequiredService<Mistake3.TooManyLayers.Bad.CustomerService>();
+        var customerService = services.GetRequiredService<CleanArchitecture.Examples.Mistake3_TooManyLayers.Bad.CustomerService>();
         var result = await customerService.GetCustomerAsync(1);
 
         services.Dispose();
@@ -133,10 +133,10 @@ public class ColdStartBenchmarks
             .AddOptimizedServices()
             .BuildServiceProvider();
 
-        var context = services.GetRequiredService<Mistake3.TooManyLayers.Good.CustomerDbContext>();
+        var context = services.GetRequiredService<CleanArchitecture.Examples.Mistake3_TooManyLayers.Good.CustomerDbContext>();
         await context.Database.EnsureCreatedAsync();
 
-        var customerService = services.GetRequiredService<Mistake3.TooManyLayers.Good.CustomerService>();
+        var customerService = services.GetRequiredService<CleanArchitecture.Examples.Mistake3_TooManyLayers.Good.CustomerService>();
         var result = await customerService.GetCustomerAsync(1);
 
         services.Dispose();
@@ -165,11 +165,11 @@ public class SimplePerformanceTest
             .BuildServiceProvider();
 
         // Initialize services and databases
-        var badCustomerService = badServices.GetRequiredService<Mistake3.TooManyLayers.Bad.CustomerService>();
-        var goodCustomerService = goodServices.GetRequiredService<Mistake3.TooManyLayers.Good.CustomerService>();
+        var badCustomerService = badServices.GetRequiredService<CleanArchitecture.Examples.Mistake3_TooManyLayers.Bad.CustomerService>();
+        var goodCustomerService = goodServices.GetRequiredService<CleanArchitecture.Examples.Mistake3_TooManyLayers.Good.CustomerService>();
 
-        var badContext = badServices.GetRequiredService<Mistake3.TooManyLayers.Bad.CustomerDbContext>();
-        var goodContext = goodServices.GetRequiredService<Mistake3.TooManyLayers.Good.CustomerDbContext>();
+        var badContext = badServices.GetRequiredService<CleanArchitecture.Examples.Mistake3_TooManyLayers.Bad.CustomerDbContext>();
+        var goodContext = goodServices.GetRequiredService<CleanArchitecture.Examples.Mistake3_TooManyLayers.Good.CustomerDbContext>();
 
         await badContext.Database.EnsureCreatedAsync();
         await goodContext.Database.EnsureCreatedAsync();

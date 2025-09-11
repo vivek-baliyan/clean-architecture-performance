@@ -1,8 +1,8 @@
-using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Mistake3.TooManyLayers.Bad;
+namespace CleanArchitecture.Examples.Mistake3_TooManyLayers.Bad;
 
 /// <summary>
 /// ❌ BAD EXAMPLE: Four-layer mapping that wastes 35% of request time
@@ -71,36 +71,36 @@ public class CustomerViewModel
 public class CustomerDbContext : DbContext
 {
     public CustomerDbContext(DbContextOptions<CustomerDbContext> options) : base(options) { }
-    
+
     public DbSet<CustomerEntity> Customers { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Seed data for benchmarking
         modelBuilder.Entity<CustomerEntity>().HasData(
-            new CustomerEntity 
-            { 
-                Id = 1, 
-                Name = "John Doe", 
-                Email = "john@example.com", 
+            new CustomerEntity
+            {
+                Id = 1,
+                Name = "John Doe",
+                Email = "john@example.com",
                 Phone = "+1-555-0123",
                 CreatedAt = DateTime.UtcNow.AddDays(-30),
                 IsActive = true
             },
-            new CustomerEntity 
-            { 
-                Id = 2, 
-                Name = "Jane Smith", 
-                Email = "jane@example.com", 
+            new CustomerEntity
+            {
+                Id = 2,
+                Name = "Jane Smith",
+                Email = "jane@example.com",
                 Phone = "+1-555-0124",
                 CreatedAt = DateTime.UtcNow.AddDays(-15),
                 IsActive = true
             },
-            new CustomerEntity 
-            { 
-                Id = 3, 
-                Name = "Bob Johnson", 
-                Email = "bob@example.com", 
+            new CustomerEntity
+            {
+                Id = 3,
+                Name = "Bob Johnson",
+                Email = "bob@example.com",
                 Phone = "+1-555-0125",
                 CreatedAt = DateTime.UtcNow.AddDays(-7),
                 IsActive = false
@@ -117,10 +117,10 @@ public class CustomerMappingProfile : Profile
     {
         // Entity → Domain (Mapping #1)
         CreateMap<CustomerEntity, Customer>();
-        
+
         // Domain → DTO (Mapping #2)  
         CreateMap<Customer, CustomerDto>();
-        
+
         // DTO → ViewModel (Mapping #3)
         CreateMap<CustomerDto, CustomerViewModel>()
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt.ToString("yyyy-MM-dd")))
@@ -150,18 +150,18 @@ public class CustomerService
         // Step 1: SQL → EF Entity (Database I/O + EF overhead)
         var entity = await _context.Customers.FindAsync(id);
         if (entity == null) throw new InvalidOperationException($"Customer {id} not found");
-        
+
         // Step 2: Entity → Domain (AutoMapper reflection overhead)
         var domain = _mapper.Map<Customer>(entity);
-        
+
         // Step 3: Domain → DTO (AutoMapper reflection overhead)  
         var dto = _mapper.Map<CustomerDto>(domain);
-        
+
         // Step 4: DTO → ViewModel (AutoMapper reflection overhead + string formatting)
         var viewModel = _mapper.Map<CustomerViewModel>(dto);
-        
+
         return viewModel;
-        
+
         // Performance Impact:
         // - 4 object allocations (25KB total)
         // - 3 AutoMapper reflection calls
@@ -177,7 +177,7 @@ public class CustomerService
         var domains = _mapper.Map<List<Customer>>(entities);          // Entity → Domain
         var dtos = _mapper.Map<List<CustomerDto>>(domains);           // Domain → DTO
         var viewModels = _mapper.Map<List<CustomerViewModel>>(dtos);  // DTO → ViewModel
-        
+
         return viewModels;
         // For 100 customers: 4 full list mappings = massive overhead!
     }
@@ -192,10 +192,10 @@ public static class ServiceConfiguration
         // ❌ BAD: Heavy DI configuration with reflection
         services.AddDbContext<CustomerDbContext>(options =>
             options.UseInMemoryDatabase("BadExample"));
-        
+
         services.AddAutoMapper(typeof(CustomerMappingProfile));
         services.AddScoped<CustomerService>();
-        
+
         return services;
     }
 }

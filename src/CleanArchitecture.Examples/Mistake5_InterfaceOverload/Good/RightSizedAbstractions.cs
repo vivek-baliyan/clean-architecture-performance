@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Mistake5.InterfaceOverload.Good;
+namespace CleanArchitecture.Examples.Mistake5_InterfaceOverload.Good;
 
 /// <summary>
 /// ✅ GOOD EXAMPLE: Right-Sized Abstractions - Only Abstract What You'll Actually Swap
@@ -205,35 +205,35 @@ public class UserOrderService
     {
         // Step 1: Create user (through interface - we DO swap this)
         var userId = await _userRepository.CreateUserAsync(userName, email);
-        
+
         // Step 2: Validate user (concrete method - no interface needed)
         if (!ValidateUser(userName, email))
         {
             throw new ArgumentException("Invalid user data");
         }
-        
+
         // Step 3: Hash password (concrete method - no interface needed)
         var hashedPassword = HashPassword("defaultPassword");
-        
+
         // Step 4: Create order (concrete method - no interface needed)
         var orderId = CreateOrder(userId, amount);
-        
+
         // Step 5: Process payment (concrete method - no interface needed)
         var paymentSuccess = ProcessPayment(orderId, amount);
-        
+
         if (!paymentSuccess)
         {
             throw new InvalidOperationException("Payment failed");
         }
-        
+
         // Step 6: Send notifications (through interface - we DO swap this)
         await _notificationService.NotifyUserCreatedAsync(userId, email);
         await _notificationService.NotifyOrderCreatedAsync(orderId, userId);
         await _notificationService.NotifyPaymentProcessedAsync(orderId, amount);
-        
+
         // Step 7: Audit log (concrete method - no interface needed)
         LogUserAction(userId, "UserOrderCreated");
-        
+
         return orderId;
     }
 
@@ -292,7 +292,7 @@ public static class ServiceRegistration
         // Register the two abstractions that matter
         services.AddScoped<IUserRepository, SqlUserRepository>();
         services.AddScoped<INotificationService, EmailNotificationService>();
-        
+
         // Register the main service
         services.AddScoped<UserOrderService>();
 
@@ -384,7 +384,7 @@ public static class UsageExamples
 
         var userOrderService = services.GetRequiredService<UserOrderService>();
         var orderId = await userOrderService.CreateUserOrderAsync("John Doe", "john@example.com", 99.99m);
-        
+
         Console.WriteLine($"✅ Order {orderId} created in production");
     }
 

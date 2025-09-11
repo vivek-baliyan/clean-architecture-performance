@@ -1,4 +1,4 @@
-namespace Mistake1.FolderIllusion.Good
+namespace CleanArchitecture.Examples.Mistake1_FolderIllusion.Good
 {
     /// <summary>
     /// ✅ GOOD EXAMPLE: Rich domain model with behavior

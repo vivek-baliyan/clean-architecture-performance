@@ -26,10 +26,10 @@ This repository demonstrates **5 critical Clean Architecture implementation mist
 | Mistake | Before → After | Key Fix | Evidence |
 |---------|----------------|---------|-----------|
 | Folder Illusion | Architecture violations | Interface placement | [Architecture Tests](tests/Unit/UserTests.cs#L173-L208) |
-| Testing Trap | 847ms → 2ms (42,350% faster) | True unit tests | [Bad](src/Mistake2-TestingTrap/Bad/) vs [Good](src/Mistake2-TestingTrap/Good/) + [Live Tests](tests/) |
+| Testing Trap | 847ms → 2ms (42,350% faster) | True unit tests | [Bad](src/CleanArchitecture.Examples/Mistake2_TestingTrap/Bad/) vs [Good](src/CleanArchitecture.Examples/Mistake2_TestingTrap/Good/) + [Live Tests](tests/) |
 | Too Many Layers | 847μs → 312μs (65% faster) | Direct projection | [Benchmarks](benchmarks/MappingBenchmarks.cs) |
-| Cargo Cult | 3.5hr → 5min delivery | Pragmatic design | [Bad](src/Mistake4-CargoCult/Bad/) vs [Good](src/Mistake4-CargoCult/Good/) |
-| Interface Overload | 47 → 2 interfaces (96% less) | Right-sized abstractions | [Bad](src/Mistake5-InterfaceOverload/Bad/) vs [Good](src/Mistake5-InterfaceOverload/Good/) |
+| Cargo Cult | 3.5hr → 5min delivery | Pragmatic design | [Bad](src/CleanArchitecture.Examples/Mistake4_CargoCult/Bad/) vs [Good](src/CleanArchitecture.Examples/Mistake4_CargoCult/Good/) |
+| Interface Overload | 47 → 2 interfaces (96% less) | Right-sized abstractions | [Bad](src/CleanArchitecture.Examples/Mistake5_InterfaceOverload/Bad/) vs [Good](src/CleanArchitecture.Examples/Mistake5_InterfaceOverload/Good/) |
 
 ## 🚀 Quick Start
 

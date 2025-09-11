@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Mistake3.TooManyLayers.Good;
+namespace CleanArchitecture.Examples.Mistake3_TooManyLayers.Good;
 
 /// <summary>
 /// ✅ GOOD EXAMPLE: Direct projection that saves 65% execution time
@@ -48,36 +48,36 @@ public record CustomerViewModel(
 public class CustomerDbContext : DbContext
 {
     public CustomerDbContext(DbContextOptions<CustomerDbContext> options) : base(options) { }
-    
+
     public DbSet<CustomerEntity> Customers { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Same seed data for fair benchmarking comparison
         modelBuilder.Entity<CustomerEntity>().HasData(
-            new CustomerEntity 
-            { 
-                Id = 1, 
-                Name = "John Doe", 
-                Email = "john@example.com", 
+            new CustomerEntity
+            {
+                Id = 1,
+                Name = "John Doe",
+                Email = "john@example.com",
                 Phone = "+1-555-0123",
                 CreatedAt = DateTime.UtcNow.AddDays(-30),
                 IsActive = true
             },
-            new CustomerEntity 
-            { 
-                Id = 2, 
-                Name = "Jane Smith", 
-                Email = "jane@example.com", 
+            new CustomerEntity
+            {
+                Id = 2,
+                Name = "Jane Smith",
+                Email = "jane@example.com",
                 Phone = "+1-555-0124",
                 CreatedAt = DateTime.UtcNow.AddDays(-15),
                 IsActive = true
             },
-            new CustomerEntity 
-            { 
-                Id = 3, 
-                Name = "Bob Johnson", 
-                Email = "bob@example.com", 
+            new CustomerEntity
+            {
+                Id = 3,
+                Name = "Bob Johnson",
+                Email = "bob@example.com",
                 Phone = "+1-555-0125",
                 CreatedAt = DateTime.UtcNow.AddDays(-7),
                 IsActive = false
@@ -117,7 +117,7 @@ public class CustomerService
             .FirstOrDefaultAsync();
 
         return customer ?? throw new InvalidOperationException($"Customer {id} not found");
-        
+
         // Performance Impact:
         // - 1 object allocation, direct SQL projection
         // - No AutoMapper overhead
@@ -138,7 +138,7 @@ public class CustomerService
                 c.CreatedAt,
                 c.IsActive))
             .ToListAsync();
-        
+
         // For 100 customers: Single query, single allocation = massive savings!
     }
 
@@ -161,7 +161,7 @@ public class CustomerService
                 c.CreatedAt,
                 c.IsActive))
             .ToListAsync();
-            
+
         // Database does filtering + pagination + projection in single query
         // No memory waste on unused records or intermediate objects
     }
@@ -175,10 +175,10 @@ public class CustomerService
         // When business logic is needed, use domain objects selectively
         var entity = await _context.Customers.FindAsync(id);
         if (entity == null) throw new InvalidOperationException($"Customer {id} not found");
-        
+
         // Apply business logic if needed
         var isVip = IsVipCustomer(entity);
-        
+
         // Still avoid AutoMapper - manual mapping is faster and more explicit
         return new CustomerViewModel(
             entity.Id,
@@ -205,10 +205,10 @@ public static class ServiceConfiguration
         // ✅ GOOD: Minimal DI configuration
         services.AddDbContext<CustomerDbContext>(options =>
             options.UseInMemoryDatabase("GoodExample"));
-        
+
         services.AddScoped<CustomerService>();
         // No AutoMapper needed!
-        
+
         return services;
     }
 }
