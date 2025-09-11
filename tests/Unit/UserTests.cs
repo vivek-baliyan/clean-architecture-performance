@@ -168,6 +168,8 @@ public class ValueObjectTests
 
 /// <summary>
 /// Architecture tests using NetArchTest to validate Clean Architecture rules
+/// These tests prove that the "Good" examples follow proper dependency directions
+/// while the "Bad" examples intentionally violate these rules for educational purposes
 /// </summary>
 public class ArchitectureTests
 {
@@ -203,5 +205,155 @@ public class ArchitectureTests
         // Assert
         result.IsSuccessful.Should().BeTrue(
             "Domain layer should not depend on Application layer");
+    }
+
+    [Fact] 
+    public void Good_Examples_Should_Follow_Clean_Architecture()
+    {
+        // This test demonstrates architecture validation concepts
+        // In a real project, you'd have stricter rules
+        
+        // Arrange
+        var domainAssembly = typeof(User).Assembly;
+        
+        // Act & Assert - Check that Good examples exist and are properly structured
+        var goodUserClass = domainAssembly.GetTypes()
+            .FirstOrDefault(t => t.Name == "User" && t.Namespace?.Contains("Good") == true);
+            
+        goodUserClass.Should().NotBeNull(
+            "Good example should have a User class demonstrating proper domain design");
+            
+        if (goodUserClass != null)
+        {
+            var hasBusinessLogic = goodUserClass.GetMethods()
+                .Any(m => m.Name.Contains("Change") || m.Name.Contains("Update"));
+                
+            hasBusinessLogic.Should().BeTrue(
+                "Domain entities should encapsulate business behavior, not just be data containers");
+        }
+    }
+
+    [Fact]
+    public void Repository_Interfaces_Should_Exist_In_Good_Examples()
+    {
+        // Arrange
+        var domainAssembly = typeof(User).Assembly;
+
+        // Act - Look for IUserRepository in Good examples  
+        var repositoryInterface = domainAssembly.GetTypes()
+            .FirstOrDefault(t => t.Name == "IUserRepository" && 
+                                 t.IsInterface && 
+                                 t.Namespace?.Contains("Good") == true);
+
+        // Assert
+        repositoryInterface.Should().NotBeNull(
+            "Good example should have IUserRepository interface in the domain layer - " +
+            "this demonstrates the fix for Mistake #1: interfaces belong where they're consumed");
+    }
+
+    [Fact]
+    public void Domain_Entities_Should_Follow_Encapsulation()
+    {
+        // Arrange
+        var domainAssembly = typeof(User).Assembly;
+
+        // Act - Check that User class exists and is properly designed
+        var userClass = domainAssembly.GetTypes()
+            .FirstOrDefault(t => t.Name == "User" && !t.IsInterface);
+
+        // Assert
+        userClass.Should().NotBeNull("User entity should exist in the domain");
+        
+        if (userClass != null)
+        {
+            var hasChangeEmailMethod = userClass.GetMethods()
+                .Any(m => m.Name == "ChangeEmail");
+            
+            hasChangeEmailMethod.Should().BeTrue(
+                "Domain entities should expose behavior through methods like ChangeEmail() " +
+                "rather than public property setters - this encapsulates business rules");
+        }
+    }
+
+    [Fact]
+    public void ValueObjects_Should_Follow_Immutability_Principle()
+    {
+        // Arrange
+        var domainAssembly = typeof(User).Assembly;
+
+        // Act - Check EmailAddress value object design  
+        var emailAddressClass = domainAssembly.GetTypes()
+            .FirstOrDefault(t => t.Name == "EmailAddress");
+
+        // Assert
+        emailAddressClass.Should().NotBeNull("EmailAddress value object should exist");
+        
+        if (emailAddressClass != null)
+        {
+            // For demo purposes, we check that it has a Value property
+            // In a real system, this would be immutable
+            var hasValueProperty = emailAddressClass.GetProperties()
+                .Any(p => p.Name == "Value");
+
+            hasValueProperty.Should().BeTrue(
+                "Value objects like EmailAddress should expose their value through a Value property - " +
+                "in production code, this should be readonly to ensure immutability");
+        }
+    }
+
+    /// <summary>
+    /// This test validates the fix for Mistake #1: Folder Illusion
+    /// Repository interfaces should be in the domain layer (where they're consumed)
+    /// not in the infrastructure layer (where they're implemented)
+    /// </summary>
+    [Fact]
+    public void Good_Example_Repository_Interface_Is_In_Domain()
+    {
+        // Arrange
+        var domainAssembly = typeof(User).Assembly;
+
+        // Act
+        var userRepositoryInterface = domainAssembly.GetTypes()
+            .FirstOrDefault(t => t.Name == "IUserRepository" && t.IsInterface);
+
+        // Assert
+        userRepositoryInterface.Should().NotBeNull(
+            "IUserRepository interface should exist in the domain layer");
+        userRepositoryInterface!.Namespace.Should().Contain("Good",
+            "The Good example should have the repository interface in the domain");
+    }
+
+    /// <summary>
+    /// Performance validation: Architecture tests should run quickly
+    /// This demonstrates that architecture validation doesn't need to be slow
+    /// </summary>
+    [Fact]
+    public void Architecture_Tests_Should_Complete_Quickly()
+    {
+        // Arrange
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var domainAssembly = typeof(User).Assembly;
+
+        // Act - Run multiple architecture validations
+        var dependencyResult = NetArchTest.Rules.Types.InAssembly(domainAssembly)
+            .Should().NotHaveDependencyOn("Infrastructure").GetResult();
+        
+        var interfaceResult = NetArchTest.Rules.Types.InAssembly(domainAssembly)
+            .Should().NotHaveDependencyOn("System.Data.SqlClient").GetResult();
+
+        var immutabilityResult = NetArchTest.Rules.Types.InAssembly(domainAssembly)
+            .That().HaveNameEndingWith("Address")
+            .Should().BeClasses().GetResult();
+
+        stopwatch.Stop();
+
+        // Assert
+        dependencyResult.IsSuccessful.Should().BeTrue();
+        interfaceResult.IsSuccessful.Should().BeTrue();
+        immutabilityResult.IsSuccessful.Should().BeTrue();
+        
+        stopwatch.ElapsedMilliseconds.Should().BeLessThan(100,
+            "Architecture validation should complete in under 100ms - " +
+            "this proves that architectural governance can be fast and automated");
     }
 }

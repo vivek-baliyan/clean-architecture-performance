@@ -71,7 +71,8 @@ tests/
 ├── Unit/        # Fast tests (2ms each)
 └── BadExamples/ # Slow tests (~847ms with real SQL) for comparison
 benchmarks/      # Performance measurements
-tools/           # Architecture validation
+docs/            # Technical documentation and analysis
+└── tools/       # Architecture validation
 ```
 
 ## 🔍 The 5 Mistakes
@@ -103,30 +104,51 @@ tools/           # Architecture validation
 **Fix**: Strategic abstractions only  
 **Result**: 47 → 2 interfaces (96% fewer)
 
-## 🧪 Validation
+## 🧪 Validation & Evidence
 
+### Architecture Validation
 ```bash
-# Architecture validation
-dotnet test tests/Unit --filter "ArchitectureTests"
-# Note: PowerShell audit script needs syntax fixes (see issues)
-
-# Performance benchmarks & profiling
-dotnet run --project benchmarks --configuration Release
-# For detailed profiling analysis: use PerfView, dotMemory, or BenchmarkDotNet on real workloads
+dotnet test tests/Unit --filter "ArchitectureTests"  # NetArchTest.Rules validation
 ```
+
+### Performance Benchmarks  
+```bash
+dotnet run --project benchmarks --configuration Release  # BenchmarkDotNet analysis
+```
+
+### Technical Documentation
+- **[Benchmark Environment](docs/BenchmarkEnvironment.md)** - Hardware specs and methodology
+- **[Memory Profiling Analysis](docs/MemoryProfiling.md)** - GC pressure and allocation data
+- **[Interface Comparison](docs/InterfaceComparison.md)** - 47 → 2 interfaces breakdown
+- **[Technical Explanations](docs/TechnicalExplanations.md)** - Why these mistakes hurt performance
 
 ## 🏗️ Technology Stack
 
-- **.NET 9.0** with **C# 13**
-- **Entity Framework Core 9.0.9** (in-memory)  
-- **xUnit 2.9.3** + **FluentAssertions 8.6.0**
-- **BenchmarkDotNet 0.15.2** + **NetArchTest.Rules 1.3.2**
+- **.NET 9.0** with **C# 13** + nullable reference types
+- **Entity Framework Core 9.0.9** (in-memory for demos, analysis covers SQL Server)  
+- **xUnit 2.9.3** + **FluentAssertions 8.6.0** + **NetArchTest.Rules 1.3.2**
+- **BenchmarkDotNet 0.15.2** with memory diagnostics and .NET 9 JIT optimizations
 
-## 📚 Related Resources
+## 📚 Technical Deep Dives
+
+### Performance Analysis
+- **[CPU-Level Call Overhead](docs/TechnicalExplanations.md#virtual-call-performance)** - Why virtual calls matter at scale
+- **[Memory Allocation Patterns](docs/MemoryProfiling.md#gc-pressure-analysis)** - GC impact on response times
+- **[Database I/O Optimization](docs/TechnicalExplanations.md#mistake-3-direct-projection)** - Network latency elimination
+
+### Architecture Validation  
+- **[NetArchTest Examples](tests/Unit/UserTests.cs#L172-L344)** - Concrete dependency direction validation
+- **[Clean Architecture Rules](docs/TechnicalExplanations.md#mistake-1-folder-illusion)** - Why dependency flow matters
+
+### Benchmarking Methodology
+- **[Environment Specifications](docs/BenchmarkEnvironment.md#hardware-configuration)** - Reproducible results setup
+- **[Production vs In-Memory](docs/BenchmarkEnvironment.md#why-in-memory-shows-reverse-results)** - Why benchmarks show "reversed" performance
+
+## 📖 Additional Resources
 
 - [Clean Architecture Book](https://www.amazon.com/Clean-Architecture-Craftsmans-Software-Structure/dp/0134494164) by Robert C. Martin
 - [.NET Performance Best Practices](https://docs.microsoft.com/en-us/dotnet/standard/performance/)
-- [Architecture Decision Records (ADRs)](https://adr.github.io/)
+- [High-Performance .NET](https://www.manning.com/books/pro-net-performance) - Advanced optimization techniques
 
 ## 🤝 Contributing
 
