@@ -146,9 +146,11 @@ dotnet run --project benchmarks --configuration Release  # BenchmarkDotNet analy
 
 ## 📖 Additional Resources
 
+- [5 Clean Architecture Mistakes That Kill .NET Performance (Medium Article)](https://medium.com/@vivek-baliyan/5-clean-architecture-mistakes-that-kill-net-performance-and-how-to-fix-them-6788f385e3c9) - Detailed walkthrough of these performance issues
+- [Follow @vivek-baliyan on Medium](https://medium.com/@vivek-baliyan) - For more .NET performance insights
 - [Clean Architecture Book](https://www.amazon.com/Clean-Architecture-Craftsmans-Software-Structure/dp/0134494164) by Robert C. Martin
-- [.NET Performance Best Practices](https://docs.microsoft.com/en-us/dotnet/standard/performance/)
-- [High-Performance .NET](https://www.manning.com/books/pro-net-performance) - Advanced optimization techniques
+- [.NET Performance Tips](https://learn.microsoft.com/en-us/dotnet/framework/performance/performance-tips) - Microsoft's official performance guidance
+- [ASP.NET Core Best Practices](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/best-practices) - Performance and reliability practices
 
 ## 🤝 Contributing
 
